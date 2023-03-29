@@ -83,8 +83,13 @@ func (v Validator) validateDisabledAndEnabledAtOneMoment(cfg *config.Linters) er
 	}
 
 	for _, name := range cfg.Disable {
-		if enabledLintersSet[name] {
-			return fmt.Errorf("linter %q can't be disabled and enabled at one moment", name)
+		for _, lc := range v.m.nameToLCs[name] {
+			if enabledLintersSet[lc.Name()] {
+				if name != lc.Name() {
+					return fmt.Errorf("linter %q can't be disabled and enabled at one moment (disabled by %q)", lc.Name(), name)
+				}
+				return fmt.Errorf("linter %q can't be disabled and enabled at one moment", name)
+			}
 		}
 	}
 

@@ -696,6 +696,11 @@ func TestProhibitsLinterDisableAndEnableAtOneMoment(t *testing.T) {
 			args:        []string{"--enable", "staticcheck", "--disable", "staticcheck"},
 			expectedMsg: `linter \"staticcheck\" can't be disabled and enabled at one moment`,
 		},
+		{
+			desc:        "Implicit enable+disable",
+			args:        []string{"--enable", "staticcheck", "--disable", "megacheck"},
+			expectedMsg: `linter \"staticcheck\" can't be disabled and enabled at one moment (disabled by \"megacheck\")`,
+		},
 	}
 
 	for _, test := range testCases {
