@@ -681,3 +681,35 @@ func TestPathPrefix(t *testing.T) {
 		})
 	}
 }
+
+func TestProhibitsLinterDisableAndEnableAtOneMoment(t *testing.T) {
+	testshared.InstallGolangciLint(t)
+
+	testCases := []struct {
+		desc        string
+		args        []string
+		expectedMsg string
+	}{
+
+		{
+			desc:        "Explicit enable+disable",
+			args:        []string{"--enable", "staticcheck", "--disable", "staticcheck"},
+			expectedMsg: `linter \"staticcheck\" can't be disabled and enabled at one moment`,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			testshared.NewRunnerBuilder(t).
+				WithNoConfig().
+				WithArgs(test.args...).
+				WithTargetPath(minimalPkg).
+				Runner().
+				Run().
+				ExpectExitCode(exitcodes.Failure).ExpectOutputContains(test.expectedMsg)
+		})
+	}
+}
